@@ -42,14 +42,9 @@ jobs:
       - name: Build Java project
         run: mvn clean install
 
-      - name: Zip the JAR
+      - name: Upload ZIP from target/ to S3
         run: |
-          mkdir artifacts
-          cp target/*.jar artifacts/
-          cd artifacts
-          zip app.zip *.jar
-          ls -lh
-      - name: Upload to S3
-        run: |
+          ls -lh target/
+          ZIP_FILE=$(ls target/*.zip | head -n 1)
           SHORT_SHA=${GITHUB_SHA::7}
-          aws s3 cp artifacts/app.zip s3://${{ env.BUCKET_NAME }}/main-app-${SHORT_SHA}.zip --region ${{ env.AWS_REGION }}
+          aws s3 cp "$ZIP_FILE" "s3://${{ env.BUCKET_NAME }}/app-${SHORT_SHA}.zip" --region ${{ env.AWS_REGION }}
